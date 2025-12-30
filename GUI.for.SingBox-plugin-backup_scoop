@@ -175,7 +175,11 @@ const onRestore = async () => {
       return;
     }
 
-    const selected = await window.Plugins.picker.single('请选择要恢复的备份', backups);
+    const selected = await window.Plugins.picker.single('请选择要恢复的备份', backups).catch(err => {
+      window.Plugins.message.error(err)
+    });
+    if (!selected) return
+    
     const gist = backups.find(b => b.value === selected);
     const filename = Object.keys(gist.files).find(k => k.endsWith('.json'));
     const rawUrl = gist.files[filename].raw_url;
@@ -208,8 +212,10 @@ const onManage = async () => {
       return;
     }
 
-    const toDelete = await window.Plugins.picker.multi('选择要删除的备份', backups, []);
-    if (toDelete.length === 0) return;
+    const toDelete = await window.Plugins.picker.multi('选择要删除的备份', backups, []).catch(err => {
+      window.Plugins.message.error(err)
+    });
+    if (!toDelete?.length) return;
 
     for (const id of toDelete) {
       await httpDelete(`https://api.github.com/gists/${id}`);
