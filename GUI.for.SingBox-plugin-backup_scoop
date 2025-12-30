@@ -245,3 +245,8 @@ const onUninstall = async () => {
 const onReady = async () => {
   await loadCryptoJS();
 };
+
+// 用于计划任务
+const onTask = async () => {
+  await onBackup()
+}
