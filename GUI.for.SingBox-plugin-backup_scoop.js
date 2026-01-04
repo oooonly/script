@@ -248,5 +248,25 @@ const onReady = async () => {
 
 // 用于计划任务
 const onTask = async () => {
-  await onBackup()
-}
+  try {
+    // 1. 执行备份操作
+    await onBackup();
+    // 2. 备份成功后，清理旧备份
+    const res = await httpGet(GIST_API);
+    const backups = filterList(res);
+    // 如果备份数量大于1，说明有旧备份需要删除
+    if (backups.length > 1) {
+      // 按时间排序（假设 API 返回的列表中，最新的在前面）
+      // 为了保险，我们保留列表中的第一个（最新），删除其余所有
+      const oldBackups = backups.slice(1); // 从第二个开始截取，都是旧的
+      for (const backup of oldBackups) {
+        await httpDelete(`https://api.github.com/gists/${backup.value}`);
+      }
+      
+      window.Plugins.message.success(`已清理 ${oldBackups.length} 个旧备份`);
+    }
+  } catch (err) {
+    console.error('计划任务执行失败:', err);
+    window.Plugins.message.error('计划任务失败: ' + err.message);
+  }
+};
