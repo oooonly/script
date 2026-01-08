@@ -108,7 +108,7 @@ async function httpDelete(url, headers = {}) {
 }
 
 // 生成带时间戳的文件名
-function generateTimestamp() {
+function generateFilename() {
   const now = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   return `scoop_backup_${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}-${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}.json`;
@@ -134,8 +134,8 @@ const onBackup = async () => {
 
     // 1. 执行 scoop export
     const result = await window.Plugins.Exec('scoop', ['export'], { Convert: true });
-    const timestamp = generateTimestamp();
-    const localPath = `/data/backups/${timestamp}`;
+    const filename = generateFilename();
+    const localPath = `/data/.cache/${filename}`;
 
     // 2. 本地保存原始文件（可选）
     await window.Plugins.WriteFile(localPath, result);
@@ -149,13 +149,14 @@ const onBackup = async () => {
       description: `Scoop Backup - ${new Date().toLocaleString()}`,
       public: false,
       files: {
-        [timestamp]: { content: encrypted }
+        [filename]: { content: encrypted }
       }
     });
 
     window.Plugins.message.update(id, '✅ 备份成功', 'success');
     setTimeout(() => window.Plugins.message.destroy(id), 1500);
-
+    await window.Plugins.RemoveFile(localPath)
+    
   } catch (err) {
     console.error('备份失败:', err);
     window.Plugins.message.error('备份失败: ' + err.message);
@@ -188,12 +189,14 @@ const onRestore = async () => {
     const decrypted = decrypt(encrypted);
 
     // 保存临时文件用于导入
-    const tempPath = `/data/backups/temp_restore.json`;
+    const tempPath = `/data/.cache/scoop_temp_restore.json`;
     await window.Plugins.WriteFile(tempPath, decrypted);
 
     // 执行恢复
     await window.Plugins.Exec('scoop', ['import', tempPath], { Convert: true });
     window.Plugins.message.success('🎉 恢复完成！');
+    await window.Plugins.RemoveFile(tempPath)
+    
   } catch (err) {
     console.error('恢复失败:', err);
     window.Plugins.message.error('恢复失败: ' + err.message);
