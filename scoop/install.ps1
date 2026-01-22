@@ -2,7 +2,7 @@
 $env:SCOOP        = "C:\applications\Scoop"
 $env:SCOOP_GLOBAL = "$env:SCOOP\global"
 $env:DENO_DIR     = "$env:SCOOP\persist\deno"
-$env:PNPM_HOME    = "$env:SCOOP\persist\pnpm\bin"
+$env:PNPM_HOME    = "$env:SCOOP\persist\pnpm"
 $env:npm_config_store_dir = "$env:SCOOP\persist\pnpm\store"
 
 # ====================== 2. 设置用户变量 ======================
