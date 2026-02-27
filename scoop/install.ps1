@@ -3,7 +3,11 @@ $env:SCOOP        = "C:\applications\Scoop"
 $env:SCOOP_GLOBAL = "$env:SCOOP\global"
 $env:DENO_DIR     = "$env:SCOOP\persist\deno"
 $env:PNPM_HOME    = "$env:SCOOP\persist\pnpm"
-$env:npm_config_store_dir = "$env:SCOOP\persist\pnpm\store"
+
+# 设置 npm 的路径
+$env:npm_config_prefix     = "$env:SCOOP\persist\npm\prefix"
+$env:npm_config_cache      = "$env:SCOOP\persist\npm\cache"
+$env:npm_config_userconfig = "$env:SCOOP\persist\npm\npmrc"
 
 # ====================== 2. 设置用户变量 ======================
 Write-Host "--- 正在将配置同步至系统环境变量 ---" -ForegroundColor Cyan
@@ -13,7 +17,6 @@ $pathMap = @{
     "SCOOP_GLOBAL"         = $env:SCOOP_GLOBAL
     "DENO_DIR"             = $env:DENO_DIR
     "PNPM_HOME"            = $env:PNPM_HOME
-    "npm_config_store_dir" = $env:npm_config_store_dir
 }
 
 foreach ($name in $pathMap.Keys) {
