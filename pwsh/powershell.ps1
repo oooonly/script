@@ -12,6 +12,20 @@ Set-PSReadLineOption -HistoryNoDuplicates
 Import-Module PSCompletions -Force
 psc menu config enable_menu_enhance 1 *>$null
 
+# fnm
+## 清理一天前的 symlink
+function Clear-FnmMultishells {
+  $dir = "$env:LOCALAPPDATA\fnm_multishells"
+  if (Test-Path $dir) {
+    Get-ChildItem $dir -Directory | Where-Object {
+      $_.CreationTime -lt (Get-Date).AddDays(-1)
+    } | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+  }
+}
+Clear-FnmMultishells
+## 加载 fnm 环境
+fnm env --use-on-cd --shell powershell | Out-String | Invoke-Expression
+
 # alias
 sal oc opencode
 sal vim nvim
